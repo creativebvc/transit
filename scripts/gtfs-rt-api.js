@@ -3,8 +3,46 @@ const URL_TRIP_UPDATES = "https://data.calgary.ca/download/gs4m-mdc2/application
 const URL_VEHICLE_POSITIONS = "https://data.calgary.ca/download/am7c-qe3u/application%2Foctet-stream";
 const URL_ALERTS = "https://data.calgary.ca/download/jhgn-ynqj/application%2Foctet-stream";
 
-// CORS Proxy (Required for local testing, browser security will block direct access)
-const PROXY_URL = "https://corsproxy.io/?"; 
+// ==========================================
+// PROXY FAILOVER SYSTEM
+// ==========================================
+// We cycle through these if one fails. 
+// 'corsproxy.io' is fast. 'allorigins.win' is a good backup for raw binary data.
+const PROXIES = [
+    "https://corsproxy.io/?",
+    "https://api.allorigins.win/raw?url="
+];
+
+async function fetchWithFailover(targetUrl) {
+    for (const proxyBase of PROXIES) {
+        try {
+            const fetchUrl = proxyBase + encodeURIComponent(targetUrl);
+            // console.log(`Trying proxy: ${proxyBase}`); 
+
+            // Set a timeout so we don't hang forever on a bad proxy
+            const controller = new AbortController();
+            const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+            const response = await fetch(fetchUrl, { signal: controller.signal });
+            clearTimeout(timeoutId);
+
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            
+            // If successful, return the buffer immediately
+            return await response.arrayBuffer();
+
+        } catch (error) {
+            console.warn(`Proxy ${proxyBase} failed, trying next...`);
+            // Loop continues to the next proxy...
+        }
+    }
+    // If we exit the loop, all proxies failed
+    throw new Error("All proxies failed to fetch transit data.");
+}
+
+// ==========================================
+// MAIN FETCH LOGIC
+// ==========================================
 
 async function fetchGTFSRT(url) {
     const root = await loadGTFSRTProto();
@@ -16,25 +54,18 @@ async function fetchGTFSRT(url) {
     const FeedMessage = root.lookupType("transit_realtime.FeedMessage");
 
     try {
-        // We wrap the URL in the proxy to bypass CORS
-        const fetchUrl = PROXY_URL + encodeURIComponent(url);
-        console.log(`Fetching: ${fetchUrl}`);
-
-        const response = await fetch(fetchUrl);
+        // Use our new failover system to get the binary data
+        const buffer = await fetchWithFailover(url);
         
-        if (!response.ok) throw new Error(`HTTP ${response.status} ${response.statusText}`);
-
-        const buffer = await response.arrayBuffer();
-        
-        // Decode the binary buffer using the loaded Proto definition
+        // Decode the binary buffer
         const decoded = FeedMessage.decode(new Uint8Array(buffer));
         
-        // Convert to plain JavaScript Object (with string enums for readability)
+        // Convert to Object (with string enums for readability)
         const object = FeedMessage.toObject(decoded, { enums: String });
         return object;
 
     } catch (error) {
-        console.error("❌ API Fetch Error:", error);
+        console.error("❌ GTFS API Error (Persistent):", error);
         return null;
     }
 }
