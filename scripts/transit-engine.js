@@ -49,9 +49,11 @@ function getDestinationName(lineColor, direction) {
 async function updateAlertBanner() {
     const banner = document.getElementById('alert-banner');
     const textSpan = document.getElementById('alert-text');
+    
+    // If elements are missing (e.g. during debugging), skip gracefully
     if (!banner || !textSpan) return;
 
-    // Fetch Alerts
+    // Fetch Alerts using the API
     const feed = await fetchGTFSRT(URL_ALERTS);
     
     let activeAlertMsg = "";
@@ -66,7 +68,9 @@ async function updateAlertBanner() {
 
         if (alertEntity && alertEntity.alert.headerText) {
             // Get the English text (usually index 0)
-            activeAlertMsg = alertEntity.alert.headerText.translation[0].text;
+            if (alertEntity.alert.headerText.translation && alertEntity.alert.headerText.translation.length > 0) {
+                 activeAlertMsg = alertEntity.alert.headerText.translation[0].text;
+            }
         }
     }
 
@@ -75,6 +79,8 @@ async function updateAlertBanner() {
         textSpan.innerText = activeAlertMsg;
         textSpan.classList.add('scrolling');
         banner.classList.remove('hidden');
+        // Force display in case inline styles hid it
+        banner.style.display = 'flex'; 
     } else {
         banner.classList.add('hidden');
         textSpan.classList.remove('scrolling');
@@ -117,12 +123,14 @@ async function buildTrainList() {
 
             if (!arrival || !arrival.time) continue;
 
-            // 2. Safe Timestamp Conversion (Handle Protobuf Longs)
+            // 2. Safe Timestamp Conversion (FIXED)
+            // We do NOT use protobuf.util.Long.isLong() to avoid crashes.
             let timeVal = arrival.time;
-            if (protobuf.util.Long.isLong(timeVal)) {
+            
+            if (timeVal && typeof timeVal.toNumber === 'function') {
                 timeVal = timeVal.toNumber();
-            } else if (typeof timeVal === 'object' && timeVal.low) {
-                 timeVal = timeVal.low;
+            } else if (timeVal && typeof timeVal === 'object' && 'low' in timeVal) {
+                 timeVal = timeVal.low; // Fallback for raw objects
             }
 
             const minutes = unixToMinutes(timeVal);
@@ -184,13 +192,11 @@ async function startTransitDashboard() {
             // 1. Get Trains
             const { westTrains, eastTrains } = await buildTrainList();
             
-            // 2. Check Alerts
+            // 2. Check Alerts (Wrapped in try/catch internally so it won't crash the board)
             await updateAlertBanner();
 
             // 3. Empty State Check (Late Night)
-            const grid = document.querySelector('.transit-grid');
             if (westTrains.length === 0 && eastTrains.length === 0) {
-                 // You could show a "Service Closed" message here
                  console.log("No trains found (Service Closed or No Data)");
             }
 
@@ -198,6 +204,8 @@ async function startTransitDashboard() {
             if (typeof window.renderColumn === "function") {
                 window.renderColumn("westbound-container", westTrains);
                 window.renderColumn("eastbound-container", eastTrains);
+            } else {
+                console.warn("renderColumn function not found in global scope.");
             }
 
             // Success: Turn Heartbeat Green
