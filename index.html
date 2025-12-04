@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BVC Transit Dashboard</title>
+    <title>BVC Transit Dashboard (Debug Mode)</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -27,7 +27,6 @@
             width: 100vw;
             font-family: 'Poppins', sans-serif;
             color: var(--text-primary);
-            /* 45 Degree Gradient Orange to Pink */
             background: linear-gradient(45deg, #ffa74f 0%, #ff4b6b 100%);
             background-size: 100% 100%;
             display: flex;
@@ -37,9 +36,6 @@
             user-select: none;
         }
 
-        /* ========================================
-           LAYOUT & CONTAINERS
-           ======================================== */
         .dashboard-container {
             width: 1720px;
             height: 880px;
@@ -47,7 +43,7 @@
             display: flex;
             flex-direction: column;
             gap: 40px;
-            position: relative; /* For Banner Positioning */
+            position: relative;
         }
 
         .header {
@@ -61,7 +57,6 @@
         .header-title h1 { 
             font-size: 56px; 
             font-weight: 700; 
-            letter-spacing: -1px; 
             margin-bottom: 0; 
             line-height: 1; 
         }
@@ -78,42 +73,23 @@
             gap: 15px; 
         }
 
-        /* Live Heartbeat Indicator */
         .live-indicator {
             height: 12px; width: 12px;
-            background-color: #00ff41; /* Bright Green */
+            background-color: #00ff41;
             border-radius: 50%;
             box-shadow: 0 0 10px #00ff41;
             display: inline-block;
             transition: background-color 0.3s ease;
         }
         .live-indicator.stale {
-            background-color: #ffaa00; /* Orange if loading/failed */
+            background-color: #ffaa00;
             box-shadow: none;
         }
 
         .time-display { text-align: right; }
-        
-        .current-time { 
-            font-size: 48px; 
-            font-weight: 600; 
-            line-height: 1; 
-            margin-top: 4px; 
-        }
-        
-        .station-badge { 
-            background: transparent; 
-            padding: 0; 
-            font-size: 18px; 
-            font-weight: 500;
-            margin-top: 10px;
-            display: inline-block;
-            opacity: 0.9;
-        }
+        .current-time { font-size: 48px; font-weight: 600; line-height: 1; margin-top: 4px; }
+        .station-badge { font-size: 18px; font-weight: 500; margin-top: 10px; display: inline-block; opacity: 0.9; }
 
-        /* ========================================
-           TRANSIT COLUMNS
-           ======================================== */
         .transit-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -122,18 +98,8 @@
             overflow: hidden;
         }
 
-        .platform-column {
-            display: flex;
-            flex-direction: column;
-            gap: 30px; 
-        }
-
-        #westbound-container, 
-        #eastbound-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+        .platform-column { display: flex; flex-direction: column; gap: 30px; }
+        #westbound-container, #eastbound-container { display: flex; flex-direction: column; gap: 20px; }
 
         .platform-header {
             font-size: 28px;
@@ -143,149 +109,54 @@
             gap: 15px;
         }
 
-        /* ========================================
-           TRAIN CARDS
-           ======================================== */
         .train-card {
             background: rgba(255, 255, 255, 0.15); 
             backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
             border-radius: 24px;
             padding: 25px 35px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             border: 1px solid rgba(255,255,255,0.3);
-            transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
         }
-
+        
         .train-card.leaving-soon {
             background: rgba(255, 255, 255, 0.25);
             border: 2px solid rgba(255, 255, 255, 0.8);
         }
 
-        .line-indicator {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 12px;
-        }
+        .line-indicator { position: absolute; left: 0; top: 0; bottom: 0; width: 12px; }
         .line-red { background: var(--ct-red); }
         .line-blue { background: var(--ct-blue); }
 
         .train-info { display: flex; flex-direction: column; gap: 5px; margin-left: 20px;}
-        
-        .destination { 
-            font-size: 36px; 
-            font-weight: 700; 
-            line-height: 1.1; 
-            letter-spacing: -0.5px;
-        }
-        
+        .destination { font-size: 36px; font-weight: 700; line-height: 1.1; letter-spacing: -0.5px;}
         .train-meta { display: flex; gap: 15px; font-size: 18px; color: var(--text-secondary); font-weight: 500;}
-
         .train-time { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
-        
         .minutes { font-size: 40px; font-weight: 700; line-height: 1; }
         .minutes span { font-size: 20px; font-weight: 400; margin-left: 4px; }
-        
-        .status { 
-            font-size: 16px; 
-            margin-top: 5px; 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            font-weight: 700;
-            color: #ffffff;
-            background: rgba(0,0,0,0.1);
-            padding: 2px 8px;
-            border-radius: 4px;
-        }
+        .status { font-size: 16px; margin-top: 5px; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; color: #ffffff; background: rgba(0,0,0,0.1); padding: 2px 8px; border-radius: 4px;}
 
-        /* Pulse Animation for < 2 min */
-        .pulse-text {
-            color: #fff;
-            animation: pulse-urgent 1.5s infinite;
-        }
-
-        @keyframes pulse-urgent {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
-        @keyframes fadeIn { to { opacity: 1; } }
-
-        /* ========================================
-           SERVICE ALERT BANNER (Bottom)
-           ======================================== */
-        .alert-banner {
-            position: absolute;
+        /* DEBUG CONSOLE */
+        #debug-console {
+            position: fixed;
             bottom: 0;
             left: 0;
             width: 100%;
-            height: 60px;
-            
-            /* Glassmorphism & Red Tint */
-            background: rgba(255, 0, 58, 0.15); /* Subtle red */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 0 0 24px 24px; /* Rounded bottom corners */
-            
-            display: flex;
-            align-items: center;
-            padding: 0 30px;
-            gap: 20px;
-            overflow: hidden;
-            transition: transform 0.5s ease-in-out, opacity 0.5s ease;
-            z-index: 100;
+            height: 200px;
+            background: rgba(0,0,0,0.9);
+            color: #00ff41;
+            font-family: monospace;
+            font-size: 14px;
+            padding: 20px;
+            overflow-y: auto;
+            z-index: 9999;
+            border-top: 2px solid #fff;
         }
-
-        /* Hidden State (Slides down) */
-        .alert-banner.hidden {
-            transform: translateY(100%);
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .alert-icon {
-            font-size: 24px;
-            animation: blink 2s infinite;
-        }
-
-        .alert-content {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            position: relative;
-            color: #fff;
-            font-weight: 600;
-            font-size: 18px;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        /* Marquee Animation */
-        .scrolling {
-            display: inline-block;
-            padding-left: 100%;
-            animation: marquee 20s linear infinite;
-        }
-
-        @keyframes marquee {
-            0%   { transform: translate(0, 0); }
-            100% { transform: translate(-100%, 0); }
-        }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
+        .log-error { color: #ff003a; }
+        .log-warn { color: #ffaa00; }
     </style>
 </head>
 <body>
@@ -306,43 +177,50 @@
         </header>
 
         <div class="transit-grid">
-            
             <div class="platform-column">
-                <div class="platform-header">
-                    <span>⬅️ Westbound (Tuscany / 69 St)</span>
-                </div>
-                <div id="westbound-container">
-                    </div>
+                <div class="platform-header"><span>⬅️ Westbound</span></div>
+                <div id="westbound-container"></div>
             </div>
-
             <div class="platform-column">
-                <div class="platform-header">
-                    <span>Eastbound (Saddletowne / Somerset) ➡️</span>
-                </div>
-                <div id="eastbound-container">
-                    </div>
-            </div>
-
-        </div>
-
-        <div id="alert-banner" class="alert-banner hidden">
-            <div class="alert-icon">⚠️</div>
-            <div class="alert-content">
-                <span id="alert-text">Service operating normally.</span>
+                <div class="platform-header"><span>Eastbound ➡️</span></div>
+                <div id="eastbound-container"></div>
             </div>
         </div>
+        
+        <div id="alert-banner" class="alert-banner hidden" style="display:none;"></div>
+    </div>
 
+    <div id="debug-console">
+        <div><strong>SYSTEM STATUS LOG:</strong></div>
     </div>
 
     <script>
-        // Basic Clock (Runs independently)
+        // Override Console to print to screen
+        const debugConsole = document.getElementById('debug-console');
+        function logToScreen(msg, type = '') {
+            const div = document.createElement('div');
+            div.textContent = `> ${msg}`;
+            if (type) div.classList.add(type);
+            debugConsole.appendChild(div);
+            debugConsole.scrollTop = debugConsole.scrollHeight; // Auto scroll
+        }
+
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        console.log = function(...args) { logToScreen(args.join(' ')); originalLog.apply(console, args); };
+        console.error = function(...args) { logToScreen(args.join(' '), 'log-error'); originalError.apply(console, args); };
+        console.warn = function(...args) { logToScreen(args.join(' '), 'log-warn'); originalWarn.apply(console, args); };
+
+        window.onerror = function(message, source, lineno, colno, error) {
+            logToScreen(`CRITICAL ERROR: ${message} at ${source}:${lineno}`, 'log-error');
+        };
+
+        // Basic Clock
         function updateClock() {
             const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', {
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true
-            });
+            document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', {hour: 'numeric', minute: '2-digit', hour12: true});
         }
         setInterval(updateClock, 1000);
         updateClock();
@@ -350,23 +228,16 @@
         // Rendering Function
         window.createTrainCard = function(train, index) {
             const lineColorClass = train.line === 'red' ? 'line-red' : 'line-blue';
-            const urgencyClass = train.minutes <= 2 ? 'leaving-soon' : '';
-            const pulseClass = train.minutes <= 2 ? 'pulse-text' : '';
             const statusText = train.minutes === 0 ? "Now" : `${train.minutes}<span>min</span>`;
-
             return `
-                <div class="train-card ${urgencyClass} fade-in" style="animation-delay: ${index * 100}ms">
+                <div class="train-card" style="margin-bottom:20px;">
                     <div class="line-indicator ${lineColorClass}"></div>
                     <div class="train-info">
                         <div class="destination">${train.destination}</div>
-                        <div class="train-meta">
-                            <span>${train.line === 'red' ? '201 Red Line' : '202 Blue Line'}</span>
-                            <span>•</span>
-                            <span>CTrain</span> 
-                        </div>
+                        <div class="train-meta"><span>CTrain</span></div>
                     </div>
                     <div class="train-time">
-                        <div class="minutes ${pulseClass}">${statusText}</div>
+                        <div class="minutes">${statusText}</div>
                         <div class="status">${train.status}</div>
                     </div>
                 </div>
@@ -375,8 +246,16 @@
 
         window.renderColumn = function(containerId, trains) {
             const container = document.getElementById(containerId);
-            if (!container) return;
-            container.innerHTML = trains.map((train, index) => window.createTrainCard(train, index)).join('');
+            if (!container) {
+                console.error(`Missing Container: ${containerId}`);
+                return;
+            }
+            if (!trains || trains.length === 0) {
+                // Keep existing content or show empty message?
+                // For now, don't clear it so we don't flash empty
+            } else {
+                container.innerHTML = trains.map((train, index) => window.createTrainCard(train, index)).join('');
+            }
         }
     </script>
 
@@ -387,13 +266,14 @@
     <script src="scripts/transit-engine.js"></script>
     
     <script>
-        // Start the engine once all scripts are loaded
         window.addEventListener('load', () => {
-            console.log("Starting Transit Engine...");
+            console.log("Window Loaded. Checking for Transit Engine...");
             if (typeof startTransitDashboard === 'function') {
+                console.log("✅ Engine found. Starting...");
                 startTransitDashboard();
             } else {
-                console.error("startTransitDashboard function missing. Check script loading order.");
+                console.error("❌ startTransitDashboard is NOT defined.");
+                console.error("Possible Cause: The 'scripts' folder is missing or files are not inside it.");
             }
         });
     </script>
