@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BVC Transit Dashboard</title>
     
-    <!-- Import Poppins Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -48,6 +47,7 @@
             display: flex;
             flex-direction: column;
             gap: 40px;
+            position: relative; /* For Banner Positioning */
         }
 
         .header {
@@ -72,7 +72,24 @@
             color: var(--text-secondary); 
             text-transform: uppercase;
             letter-spacing: 2px;
-            margin-top: 20px; 
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            gap: 15px; 
+        }
+
+        /* Live Heartbeat Indicator */
+        .live-indicator {
+            height: 12px; width: 12px;
+            background-color: #00ff41; /* Bright Green */
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00ff41;
+            display: inline-block;
+            transition: background-color 0.3s ease;
+        }
+        .live-indicator.stale {
+            background-color: #ffaa00; /* Orange if loading/failed */
+            box-shadow: none;
         }
 
         .time-display { text-align: right; }
@@ -172,7 +189,7 @@
 
         .train-time { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
         
-        .minutes { font-size: 56px; font-weight: 700; line-height: 1; }
+        .minutes { font-size: 40px; font-weight: 700; line-height: 1; }
         .minutes span { font-size: 20px; font-weight: 400; margin-left: 4px; }
         
         .status { 
@@ -202,16 +219,85 @@
         .fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
         @keyframes fadeIn { to { opacity: 1; } }
 
+        /* ========================================
+           SERVICE ALERT BANNER (Bottom)
+           ======================================== */
+        .alert-banner {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            
+            /* Glassmorphism & Red Tint */
+            background: rgba(255, 0, 58, 0.15); /* Subtle red */
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-top: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 0 0 24px 24px; /* Rounded bottom corners */
+            
+            display: flex;
+            align-items: center;
+            padding: 0 30px;
+            gap: 20px;
+            overflow: hidden;
+            transition: transform 0.5s ease-in-out, opacity 0.5s ease;
+            z-index: 100;
+        }
+
+        /* Hidden State (Slides down) */
+        .alert-banner.hidden {
+            transform: translateY(100%);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .alert-icon {
+            font-size: 24px;
+            animation: blink 2s infinite;
+        }
+
+        .alert-content {
+            flex: 1;
+            white-space: nowrap;
+            overflow: hidden;
+            position: relative;
+            color: #fff;
+            font-weight: 600;
+            font-size: 18px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        /* Marquee Animation */
+        .scrolling {
+            display: inline-block;
+            padding-left: 100%;
+            animation: marquee 20s linear infinite;
+        }
+
+        @keyframes marquee {
+            0%   { transform: translate(0, 0); }
+            100% { transform: translate(-100%, 0); }
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
     </style>
 </head>
 <body>
 
     <div class="dashboard-container">
-        <!-- Header -->
         <header class="header">
             <div class="header-title">
                 <h1 id="station-name">City Hall / Bow Valley College Station</h1>
-                <h2>Live Departures</h2>
+                <h2>
+                    <div id="live-indicator" class="live-indicator stale"></div> 
+                    Live Departures
+                </h2>
             </div>
             <div class="time-display">
                 <div class="current-time" id="clock">00:00</div>
@@ -219,35 +305,37 @@
             </div>
         </header>
 
-        <!-- Main Grid -->
         <div class="transit-grid">
             
-            <!-- Column 1: Westbound -->
             <div class="platform-column">
                 <div class="platform-header">
                     <span>⬅️ Westbound (Tuscany / 69 St)</span>
                 </div>
                 <div id="westbound-container">
-                    <!-- Cards injected by JS -->
-                </div>
+                    </div>
             </div>
 
-            <!-- Column 2: Eastbound -->
             <div class="platform-column">
                 <div class="platform-header">
                     <span>Eastbound (Saddletowne / Somerset) ➡️</span>
                 </div>
                 <div id="eastbound-container">
-                    <!-- Cards injected by JS -->
-                </div>
+                    </div>
             </div>
 
         </div>
+
+        <div id="alert-banner" class="alert-banner hidden">
+            <div class="alert-icon">⚠️</div>
+            <div class="alert-content">
+                <span id="alert-text">Service operating normally.</span>
+            </div>
+        </div>
+
     </div>
 
-    <!-- UTILITY SCRIPTS -->
     <script>
-        // Basic Clock (Runs independently of Transit Engine)
+        // Basic Clock (Runs independently)
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', {
@@ -259,8 +347,7 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // Rendering Function (Used by Transit Engine)
-        // Made global (window.) so module scripts can see it
+        // Rendering Function
         window.createTrainCard = function(train, index) {
             const lineColorClass = train.line === 'red' ? 'line-red' : 'line-blue';
             const urgencyClass = train.minutes <= 2 ? 'leaving-soon' : '';
@@ -275,7 +362,7 @@
                         <div class="train-meta">
                             <span>${train.line === 'red' ? '201 Red Line' : '202 Blue Line'}</span>
                             <span>•</span>
-                            <span>4 Cars</span>
+                            <span>CTrain</span> 
                         </div>
                     </div>
                     <div class="train-time">
@@ -293,11 +380,8 @@
         }
     </script>
 
-    <!-- REAL-TIME TRANSIT ENGINE -->
-    <!-- Load protobuf.js first -->
     <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.4/dist/protobuf.min.js"></script>
     
-    <!-- Load our modules from the /scripts folder -->
     <script src="scripts/proto-loader.js"></script>
     <script src="scripts/gtfs-rt-api.js"></script>
     <script src="scripts/transit-engine.js"></script>
