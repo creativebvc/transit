@@ -3,19 +3,23 @@ const URL_TRIP_UPDATES = "https://data.calgary.ca/download/gs4m-mdc2/application
 const URL_VEHICLE_POSITIONS = "https://data.calgary.ca/download/am7c-qe3u/application%2Foctet-stream";
 const URL_ALERTS = "https://data.calgary.ca/download/jhgn-ynqj/application%2Foctet-stream";
 
-// NEW PROXY LIST (More reliable options)
+// ==========================================
+// PROXY CONFIGURATION
+// ==========================================
 const PROXIES = [
-    "https://api.allorigins.win/raw?url=",     // Tries to get raw data
-    "https://corsproxy.io/?",                  // Standard proxy
-    "https://thingproxy.freeboard.io/fetch/"   // Backup
+    "https://corsproxy.io/?",                  // Primary: Usually fastest
+    "https://api.allorigins.win/raw?url=",     // Backup 1: Reliable but slower
+    "https://thingproxy.freeboard.io/fetch/"   // Backup 2: Last resort
 ];
 
 async function fetchWithFailover(targetUrl) {
     for (const proxyBase of PROXIES) {
         try {
             const fetchUrl = proxyBase + encodeURIComponent(targetUrl);
+            
+            // INCREASED TIMEOUT: We now wait 10 seconds before giving up
             const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 5000);
+            const timeoutId = setTimeout(() => controller.abort(), 10000); 
 
             const response = await fetch(fetchUrl, { signal: controller.signal });
             clearTimeout(timeoutId);
@@ -25,23 +29,25 @@ async function fetchWithFailover(targetUrl) {
             // SECURITY CHECK: Did we get an error page instead of data?
             const contentType = response.headers.get("content-type");
             if (contentType && contentType.includes("text/html")) {
-                throw new Error("Proxy returned HTML (likely an error page) instead of binary data.");
+                throw new Error("Proxy returned HTML error page instead of binary data.");
             }
             
             const buffer = await response.arrayBuffer();
             
-            // VALIDATION: Is the file too small? (Error pages are usually < 1KB, Real data is > 10KB)
+            // VALIDATION: Is the file too small?
             if (buffer.byteLength < 100) {
                 throw new Error("Data too short (likely corrupted).");
             }
 
+            // Success! Return the data
             return buffer;
 
         } catch (error) {
-            console.warn(`⚠️ Proxy ${proxyBase} failed:`, error.message);
+            // Log this as a warning, not an error. It's normal for proxies to fail occasionally.
+            console.warn(`⚠️ Proxy ${proxyBase} failed or timed out. Switching to next backup...`);
         }
     }
-    throw new Error("All proxies failed.");
+    throw new Error("All proxies failed. Check internet connection.");
 }
 
 async function fetchGTFSRT(url) {
