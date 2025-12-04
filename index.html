@@ -10,9 +10,6 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Import DotLottie Player -->
-    <script src="https://unpkg.com/@dotlottie/player-component@latest/dist/dotlottie-player.mjs" type="module"></script>
-
     <style>
         /* ========================================
            CSS RESET & BASE
@@ -175,7 +172,7 @@
 
         .train-time { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
         
-        .minutes { font-size: 40px; font-weight: 700; line-height: 1; }
+        .minutes { font-size: 56px; font-weight: 700; line-height: 1; }
         .minutes span { font-size: 20px; font-weight: 400; margin-left: 4px; }
         
         .status { 
@@ -212,26 +209,10 @@
     <div class="dashboard-container">
         <!-- Header -->
         <header class="header">
-            <!-- Header Left: Icon + Title -->
-            <div class="header-left">
-                <!-- Using a known working public URL for the train animation to fix the "Invalid URL" error -->
-                <!-- If you have the file locally in assets/train-icon.json, ensure your server serves JSON correctly -->
-                <dotlottie-player 
-                    src="https://lottie.host/5a709292-1c25-4122-8367-930062776269/D8w5Z730Jb.json" 
-                    background="transparent" 
-                    speed="1" 
-                    style="width: 100px; height: 100px;" 
-                    loop 
-                    autoplay>
-                </dotlottie-player>
-
-                <div class="header-title">
-                    <h1 id="station-name">City Hall / Bow Valley College</h1>
-                    <h2>Live Departures</h2>
-                </div>
+            <div class="header-title">
+                <h1 id="station-name">City Hall / Bow Valley College Station</h1>
+                <h2>Live Departures</h2>
             </div>
-
-            <!-- Header Right: Time -->
             <div class="time-display">
                 <div class="current-time" id="clock">00:00</div>
                 <div class="station-badge">Platforms 1 & 2</div>
