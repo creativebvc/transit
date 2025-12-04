@@ -15,8 +15,8 @@
            CSS RESET & BASE
            ======================================== */
         :root {
-            --ct-red: #ef3e42;
-            --ct-blue: #0077c8;
+            --ct-red: #ff003a;
+            --ct-blue: #00a8ff;
             --text-primary: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.85);
         }
@@ -162,7 +162,7 @@
         .train-info { display: flex; flex-direction: column; gap: 5px; margin-left: 20px;}
         
         .destination { 
-            font-size: 36px; 
+            font-size: 25px; 
             font-weight: 700; 
             line-height: 1.1; 
             letter-spacing: -0.5px;
@@ -265,7 +265,7 @@
             const lineColorClass = train.line === 'red' ? 'line-red' : 'line-blue';
             const urgencyClass = train.minutes <= 2 ? 'leaving-soon' : '';
             const pulseClass = train.minutes <= 2 ? 'pulse-text' : '';
-            const statusText = train.minutes === 0 ? "NOW" : `${train.minutes}<span>min</span>`;
+            const statusText = train.minutes === 0 ? "Now" : `${train.minutes}<span>min</span>`;
 
             return `
                 <div class="train-card ${urgencyClass} fade-in" style="animation-delay: ${index * 100}ms">
