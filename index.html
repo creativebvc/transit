@@ -3,406 +3,228 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BVC Transit Dashboard</title>
+    <title>BVC Transit Dashboard - 1080p</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
-        /* ========================================
-           CSS RESET & BASE
-           ======================================== */
         :root {
             --ct-red: #ff003a;
             --ct-blue: #00a8ff;
             --text-primary: #ffffff;
-            --text-secondary: rgba(255, 255, 255, 0.85);
+            --text-secondary: rgba(255, 255, 255, 0.9);
+            
+            /* UPDATED COLORS */
+            --status-green: rgba(0, 255, 150, 0.5); 
+            --status-alert: rgba(255, 0, 42, 0.5);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            height: 100vh;
-            width: 100vw;
+            height: 100vh; width: 100vw;
             font-family: 'Poppins', sans-serif;
             color: var(--text-primary);
-            /* 45 Degree Gradient Orange to Pink */
             background: linear-gradient(45deg, #ffa74f 0%, #ff4b6b 100%);
             background-size: 100% 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            overflow: hidden;
-            user-select: none;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden; user-select: none;
         }
 
-        /* ========================================
-           LAYOUT & CONTAINERS
-           ======================================== */
-        .dashboard-container {
-            width: 1720px;
-            height: 880px;
-            padding: 60px;
-            display: flex;
-            flex-direction: column;
-            gap: 40px;
-            position: relative; /* For Banner Positioning */
-        }
-
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            padding-bottom: 40px; 
-            border-bottom: 2px solid rgba(255,255,255,0.3);
-        }
-
-        .header-title h1 { 
-            font-size: 56px; 
-            font-weight: 700; 
-            letter-spacing: -1px; 
-            margin-bottom: 0; 
-            line-height: 1; 
-        }
-        
-        .header-title h2 { 
-            font-size: 24px; 
-            font-weight: 500; 
-            color: var(--text-secondary); 
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            gap: 15px; 
-        }
-
-        /* Live Heartbeat Indicator */
-        .live-indicator {
-            height: 12px; width: 12px;
-            background-color: #00ff41; /* Bright Green */
-            border-radius: 50%;
-            box-shadow: 0 0 10px #00ff41;
-            display: inline-block;
-            transition: background-color 0.3s ease;
-        }
-        .live-indicator.stale {
-            background-color: #ffaa00; /* Orange if loading/failed */
-            box-shadow: none;
-        }
-
-        .time-display { text-align: right; }
-        
-        .current-time { 
-            font-size: 48px; 
-            font-weight: 600; 
-            line-height: 1; 
-            margin-top: 4px; 
-        }
-        
-        .station-badge { 
-            background: transparent; 
-            padding: 0; 
-            font-size: 18px; 
-            font-weight: 500;
-            margin-top: 10px;
-            display: inline-block;
-            opacity: 0.9;
-        }
-
-        /* ========================================
-           TRANSIT COLUMNS
-           ======================================== */
-        .transit-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 80px;
-            height: 100%;
-            overflow: hidden;
-        }
-
-        .platform-column {
-            display: flex;
-            flex-direction: column;
-            gap: 30px; 
-        }
-
-        #westbound-container, 
-        #eastbound-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .platform-header {
-            font-size: 28px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        /* ========================================
-           TRAIN CARDS
-           ======================================== */
-        .train-card {
-            background: rgba(255, 255, 255, 0.15); 
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border-radius: 24px;
-            padding: 25px 35px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            border: 1px solid rgba(255,255,255,0.3);
-            transition: all 0.3s ease;
+        .dashboard-wrapper {
+            width: 1920px; height: 1080px;
             position: relative;
+            padding: 80px 80px 0 80px; 
             overflow: hidden;
         }
 
-        .train-card.leaving-soon {
-            background: rgba(255, 255, 255, 0.25);
-            border: 2px solid rgba(255, 255, 255, 0.8);
+        /* HEADER */
+        .header-row {
+            display: flex; justify-content: space-between; align-items: flex-start;
+            margin-bottom: 60px;
         }
+        .station-group { display: flex; flex-direction: column; gap: 30px; } /* Updated gap */
+        .station-name { font-size: 64px; font-weight: 700; line-height: 1; letter-spacing: -1px; }
+        .live-status {
+            font-size: 28px; font-weight: 600; text-transform: uppercase;
+            letter-spacing: 2px; color: var(--text-secondary);
+            display: flex; align-items: center; gap: 15px;
+        }
+        .live-dot {
+            height: 14px; width: 14px; background-color: #00ff41;
+            border-radius: 50%; box-shadow: 0 0 10px #00ff41;
+        }
+        .live-dot.stale { background-color: #ffa500; box-shadow: 0 0 10px #ffa500; }
+        .time-group { text-align: right; display: flex; flex-direction: column; gap: 5px; }
+        .clock { font-size: 64px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+        .platform-info { font-size: 24px; font-weight: 500; opacity: 0.9; }
 
-        .line-indicator {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 12px;
+        /* CONTENT */
+        .content-area {
+            display: flex; justify-content: space-between; gap: 100px;
+            height: 700px; 
         }
+        .direction-column { flex: 1; display: flex; flex-direction: column; gap: 30px; }
+        .column-label { font-size: 32px; font-weight: 600; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .train-list { display: flex; flex-direction: column; gap: 25px; }
+
+        /* TRAIN CARD - MATCHING JUMBOTRON SPECS */
+        .train-card {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 24px;
+            /* Height remains 140px for 1080p scaling, but inner content matches */
+            height: 140px; 
+            width: 100%; padding: 0 30px 0 0;
+            display: flex; align-items: center; justify-content: space-between;
+            position: relative; overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+        .line-strip { position: absolute; left: 0; top: 0; bottom: 0; width: 12px; border-radius: 0; }
         .line-red { background: var(--ct-red); }
         .line-blue { background: var(--ct-blue); }
-
-        .train-info { display: flex; flex-direction: column; gap: 5px; margin-left: 20px;}
         
-        .destination { 
-            font-size: 36px; 
-            font-weight: 700; 
-            line-height: 1.1; 
-            letter-spacing: -0.5px;
-        }
+        .dest-info { display: flex; flex-direction: column; justify-content: center; margin-left: 30px; }
+        /* Updated Fonts to match Jumbotron */
+        .dest-name { font-size: 30px; font-weight: 700; line-height: 1.1; letter-spacing: -0.5px; }
+        .line-name { font-size: 20px; font-weight: 500; opacity: 0.9; margin-top: 5px; }
         
-        .train-meta { 
-            display: flex; 
-            gap: 15px; 
-            font-size: 18px; 
-            color: var(--text-secondary); 
-            font-weight: 500;
-        }
-
-        .train-time { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+        .arrival-info { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
+        /* Updated Fonts to match Jumbotron */
+        .minutes { font-size: 30px; font-weight: 700; line-height: 1; }
+        .minutes span { font-size: 18px; font-weight: 500; margin-left: 4px; }
         
-        .minutes { font-size: 40px; font-weight: 700; line-height: 1; }
-        .minutes span { font-size: 20px; font-weight: 400; margin-left: 4px; }
-        
-        .status { 
-            font-size: 16px; 
-            margin-top: 5px; 
-            text-transform: uppercase; 
-            letter-spacing: 1px; 
-            font-weight: 700;
-            color: #ffffff;
-            background: rgba(0,0,0,0.1);
-            padding: 2px 8px;
-            border-radius: 4px;
+        .status-badge {
+            font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;
+            background: rgba(0,0,0,0.1); padding: 6px 12px; border-radius: 6px;
+            margin-top: 8px; display: inline-block;
         }
 
-        /* Pulse Animation for < 2 min */
-        .pulse-text {
-            color: #fff;
-            animation: pulse-urgent 1.5s infinite;
-        }
-
-        @keyframes pulse-urgent {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        .fade-in { animation: fadeIn 0.6s ease-out forwards; opacity: 0; }
+        .fade-in { animation: fadeIn 0.5s ease-out forwards; opacity: 0; }
         @keyframes fadeIn { to { opacity: 1; } }
+        .pulse-text { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
         /* ========================================
-           SERVICE ALERT BANNER (Bottom)
+           SERVICE FOOTER (UPDATED)
            ======================================== */
-        .alert-banner {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 60px;
-            
-            /* Glassmorphism & Red Tint */
-            background: rgba(255, 0, 58, 0.15); /* Subtle red */
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-top: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 0 0 24px 24px; /* Rounded bottom corners */
-            
-            display: flex;
-            align-items: center;
-            padding: 0 30px;
-            gap: 20px;
-            overflow: hidden;
-            transition: transform 0.5s ease-in-out, opacity 0.5s ease;
-            z-index: 100;
+        #service-footer {
+            position: absolute; bottom: 0; left: 0; width: 100%; 
+            height: 40px; 
+            display: flex; align-items: center;
+            justify-content: flex-start;
+            font-size: 14px; 
+            font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+            color: white; overflow: hidden; white-space: nowrap;
+            backdrop-filter: blur(5px);
         }
 
-        /* Hidden State (Slides down) */
-        .alert-banner.hidden {
-            transform: translateY(100%);
-            opacity: 0;
-            pointer-events: none;
-        }
+        .status-ok { background-color: var(--status-green); }
+        .status-alert { background-color: var(--status-alert); }
 
-        .alert-icon {
-            font-size: 24px;
-            animation: blink 2s infinite;
-        }
-
-        .alert-content {
-            flex: 1;
-            white-space: nowrap;
-            overflow: hidden;
-            position: relative;
-            color: #fff;
-            font-weight: 600;
-            font-size: 18px;
-            letter-spacing: 0.5px;
-            text-transform: uppercase;
-        }
-
-        /* Marquee Animation */
-        .scrolling {
+        #service-text {
             display: inline-block;
-            padding-left: 100%;
-            animation: marquee 20s linear infinite;
+            padding-left: 100%; 
+            animation: marquee 30s linear infinite;
         }
-
+        
         @keyframes marquee {
-            0%   { transform: translate(0, 0); }
+            0% { transform: translate(0, 0); }
             100% { transform: translate(-100%, 0); }
         }
-
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
     </style>
 </head>
 <body>
 
-    <div class="dashboard-container">
-        <header class="header">
-            <div class="header-title">
-                <h1 id="station-name">City Hall / Bow Valley College Station</h1>
-                <h2>
-                    <div id="live-indicator" class="live-indicator stale"></div> 
-                    Live Departures
-                </h2>
+    <div class="dashboard-wrapper">
+        <header class="header-row">
+            <div class="station-group">
+                <div class="station-name">City Hall / Bow Valley College Station</div>
+                <div class="live-status">
+                    <span class="live-dot" id="live-indicator"></span> Live Departures
+                </div>
             </div>
-            <div class="time-display">
-                <div class="current-time" id="clock">00:00</div>
-                <div class="station-badge">Platforms 1 & 2</div>
+            <div class="time-group">
+                <div class="clock" id="clock">--:-- --</div>
+                <div class="platform-info">Platforms 1 & 2</div>
             </div>
         </header>
 
-        <div class="transit-grid">
-            
-            <div class="platform-column">
-                <div class="platform-header">
-                    <span>⬅️ Westbound (Tuscany / 69 St)</span>
+        <div class="content-area">
+            <div class="direction-column">
+                <div class="column-label"><span⬅️</span> Westbound (Tuscany / 69 St)</div>
+                <div class="train-list" id="westbound-container">
+                    <div class="train-card" style="opacity:0.6; justify-content:center;">Loading schedule...</div>
                 </div>
-                <div id="westbound-container">
-                    </div>
             </div>
-
-            <div class="platform-column">
-                <div class="platform-header">
-                    <span>Eastbound (Saddletowne / Somerset) ➡️</span>
+            <div class="direction-column">
+                <div class="column-label">Eastbound (Saddletowne / Somerset) <span>➡️</span></div>
+                <div class="train-list" id="eastbound-container">
+                    <div class="train-card" style="opacity:0.6; justify-content:center;">Loading schedule...</div>
                 </div>
-                <div id="eastbound-container">
-                    </div>
             </div>
-
         </div>
 
-        <div id="alert-banner" class="alert-banner hidden">
-            <div class="alert-icon">⚠️</div>
-            <div class="alert-content">
-                <span id="alert-text">Service operating normally.</span>
-            </div>
-        </div>
+        <footer id="service-footer" class="status-ok">
+            <span id="service-text">Checking service status...</span>
+        </footer>
 
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.4/dist/protobuf.min.js"></script>
+    <script src="scripts/proto-loader.js"></script>
+    <script src="scripts/gtfs-rt-api.js"></script>
+    <script src="scripts/transit-engine.js?v=6"></script>
+
     <script>
-        // Basic Clock (Runs independently)
         function updateClock() {
             const now = new Date();
-            document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', {
-                hour: 'numeric',
-                minute: '2-digit',
-                hour12: true
+            document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', {
+                hour: 'numeric', minute: '2-digit', hour12: true
             });
         }
         setInterval(updateClock, 1000);
         updateClock();
 
-        // Rendering Function
         window.createTrainCard = function(train, index) {
-            const lineColorClass = train.line === 'red' ? 'line-red' : 'line-blue';
-            const urgencyClass = train.minutes <= 2 ? 'leaving-soon' : '';
-            const pulseClass = train.minutes <= 2 ? 'pulse-text' : '';
-            const statusText = train.minutes === 0 ? "Now" : `${train.minutes}<span>min</span>`;
-            
-            // Format Line Name: 201 Red Line or 202 Blue Line
+            const lineColor = train.line === 'red' ? 'line-red' : 'line-blue';
             const lineName = train.line === 'red' ? '201 Red Line' : '202 Blue Line';
-
+            const timeText = train.minutes === 0 ? 'Now' : train.minutes;
+            const minLabel = train.minutes === 0 ? '' : '<span>min</span>';
+            const pulse = train.minutes <= 1 ? 'pulse-text' : '';
             return `
-                <div class="train-card ${urgencyClass} fade-in" style="animation-delay: ${index * 100}ms">
-                    <div class="line-indicator ${lineColorClass}"></div>
-                    <div class="train-info">
-                        <div class="destination">${train.destination}</div>
-                        <div class="train-meta">
-                            <span>${lineName}</span>
-                        </div>
+                <div class="train-card fade-in" style="animation-delay: ${index * 0.1}s">
+                    <div class="line-strip ${lineColor}"></div>
+                    <div class="dest-info">
+                        <div class="dest-name">${train.destination}</div>
+                        <div class="line-name">${lineName}</div>
                     </div>
-                    <div class="train-time">
-                        <div class="minutes ${pulseClass}">${statusText}</div>
-                        <div class="status">${train.status}</div>
+                    <div class="arrival-info">
+                        <div class="minutes ${pulse}">${timeText}${minLabel}</div>
+                        <div class="status-badge">${train.status}</div>
                     </div>
                 </div>
             `;
-        }
+        };
 
         window.renderColumn = function(containerId, trains) {
             const container = document.getElementById(containerId);
             if (!container) return;
-            container.innerHTML = trains.map((train, index) => window.createTrainCard(train, index)).join('');
-        }
-    </script>
-
-    <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.4/dist/protobuf.min.js"></script>
-    
-    <script src="scripts/proto-loader.js"></script>
-    <script src="scripts/gtfs-rt-api.js"></script>
-    <script src="scripts/transit-engine.js"></script>
-    
-    <script>
-        // Start the engine once all scripts are loaded
-        window.addEventListener('load', () => {
-            console.log("Starting Transit Engine...");
-            if (typeof startTransitDashboard === 'function') {
-                startTransitDashboard();
+            const visibleTrains = trains.slice(0, 3);
+            if (visibleTrains.length === 0) {
+                container.innerHTML = `<div class="train-card" style="opacity:0.7; justify-content:center;">No trains scheduled</div>`;
             } else {
-                console.error("startTransitDashboard function missing. Check script loading order.");
+                container.innerHTML = visibleTrains.map((train, index) => window.createTrainCard(train, index)).join('');
             }
-        });
+        };
+
+        setTimeout(() => {
+            if (typeof startTransitDashboard === "function") {
+                startTransitDashboard();
+            } else { console.error("Engine script not found!"); }
+        }, 1000);
     </script>
 </body>
 </html>
