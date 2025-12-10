@@ -16,7 +16,7 @@
             --text-primary: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.9);
             
-            /* COLORS */
+            /* UPDATED COLORS */
             --status-green: rgba(0, 255, 150, 0.5); 
             --status-alert: rgba(255, 0, 42, 0.5);
         }
@@ -43,9 +43,9 @@
         /* HEADER */
         .header-row {
             display: flex; justify-content: space-between; align-items: flex-start;
-            margin-bottom: 40px; /* Reduced slightly to give more room for 4th card */
+            margin-bottom: 60px;
         }
-        .station-group { display: flex; flex-direction: column; gap: 30px; }
+        .station-group { display: flex; flex-direction: column; gap: 30px; } /* Updated gap */
         .station-name { font-size: 60px; font-weight: 700; line-height: 1; letter-spacing: -1px; }
         .live-status {
             font-size: 28px; font-weight: 600; text-transform: uppercase;
@@ -64,20 +64,19 @@
         /* CONTENT */
         .content-area {
             display: flex; justify-content: space-between; gap: 100px;
-            /* Increased height to fit 4th row */
-            height: 840px; 
+            height: 700px; 
         }
-        .direction-column { flex: 1; display: flex; flex-direction: column; gap: 20px; } /* Reduced gap to 20px */
-        .column-label { font-size: 32px; font-weight: 600; display: flex; align-items: center; gap: 15px; margin-bottom: 5px; }
-        .train-list { display: flex; flex-direction: column; gap: 20px; } /* Reduced gap between cards to 20px */
+        .direction-column { flex: 1; display: flex; flex-direction: column; gap: 30px; }
+        .column-label { font-size: 32px; font-weight: 600; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
+        .train-list { display: flex; flex-direction: column; gap: 25px; }
 
         /* TRAIN CARD */
         .train-card {
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 24px;
-            /* Reduced height slightly to 130px to fit 4 rows comfortably */
-            height: 130px; 
+            /* Height remains 140px for 1080p scaling, but inner content matches */
+            height: 140px; 
             width: 100%; padding: 0 30px 0 0;
             display: flex; align-items: center; justify-content: space-between;
             position: relative; overflow: hidden;
@@ -88,14 +87,12 @@
         .line-blue { background: var(--ct-blue); }
         
         .dest-info { display: flex; flex-direction: column; justify-content: center; margin-left: 30px; }
-        
-        /* Fonts kept EXACTLY as requested */
+        /* Updated Fonts to match Jumbotron */
         .dest-name { font-size: 36px; font-weight: 700; line-height: 1.1; letter-spacing: -0.5px; }
         .line-name { font-size: 22px; font-weight: 500; opacity: 0.9; margin-top: 5px; }
         
         .arrival-info { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
-        
-        /* Fonts kept EXACTLY as requested */
+        /* Updated Fonts to match Jumbotron */
         .minutes { font-size: 34px; font-weight: 700; line-height: 1; }
         .minutes span { font-size: 20px; font-weight: 500; margin-left: 4px; }
         
@@ -110,7 +107,9 @@
         .pulse-text { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* SERVICE FOOTER */
+        /* ========================================
+           SERVICE FOOTER (UPDATED)
+           ======================================== */
         #service-footer {
             position: absolute; bottom: 0; left: 0; width: 100%; 
             height: 40px; 
@@ -177,7 +176,9 @@
     <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.4/dist/protobuf.min.js"></script>
     <script src="scripts/proto-loader.js"></script>
     <script src="scripts/gtfs-rt-api.js"></script>
-    <script src="scripts/transit-engine.js?v=8"></script> <script>
+    <script src="scripts/transit-engine.js?v=6"></script>
+
+    <script>
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', {
@@ -211,10 +212,9 @@
         window.renderColumn = function(containerId, trains) {
             const container = document.getElementById(containerId);
             if (!container) return;
-            // UPDATED: Show 4 trains per column
-            const visibleTrains = trains.slice(0, 4);
+            const visibleTrains = trains.slice(0, 3);
             if (visibleTrains.length === 0) {
-                container.innerHTML = `<div class="train-card" style="opacity:0.7; justify-content:center;">Loading schedule...</div>`;
+                container.innerHTML = `<div class="train-card" style="opacity:0.7; justify-content:center;">No trains scheduled</div>`;
             } else {
                 container.innerHTML = visibleTrains.map((train, index) => window.createTrainCard(train, index)).join('');
             }
@@ -228,3 +228,4 @@
     </script>
 </body>
 </html>
+
