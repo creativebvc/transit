@@ -157,8 +157,8 @@ async function buildTrainList() {
 
     return { 
         // UPDATED: Allow 4 trains per column
-        westTrains: westTrains.slice(0, 4), 
-        eastTrains: eastTrains.slice(0, 4) 
+        westTrains: westTrains.slice(0, 3), 
+        eastTrains: eastTrains.slice(0, 3) 
     };
 }
 
@@ -221,4 +221,5 @@ async function startTransitDashboard() {
     update();
     setInterval(update, 30000); 
 }
+
 
