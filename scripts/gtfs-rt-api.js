@@ -6,7 +6,6 @@ const URL_ALERTS = "https://data.calgary.ca/download/jhgn-ynqj/application%2Foct
 // ==========================================
 // YOUR PRIVATE PROXY
 // ==========================================
-// Re-paste your specific worker URL here if it's different
 const PROXY_BASE = "https://bvctransitproxy.creative-018.workers.dev/?url=";
 
 async function fetchGTFSRT(targetUrl) {
@@ -17,9 +16,10 @@ async function fetchGTFSRT(targetUrl) {
 
     try {
         // --- CACHE BUSTER FIX ---
-        // We add '&cb=' + Date.now() to force a fresh request every time
-        // This prevents Cloudflare from serving old/stale data
+        // This adds a random number (?cb=123456) to the URL.
+        // It forces the server to give us a NEW file, not an old cached one.
         const uniqueUrl = targetUrl + (targetUrl.includes('?') ? '&' : '?') + 'cb=' + Date.now();
+        
         const fetchUrl = PROXY_BASE + encodeURIComponent(uniqueUrl);
         
         const response = await fetch(fetchUrl);
@@ -28,7 +28,6 @@ async function fetchGTFSRT(targetUrl) {
         
         const buffer = await response.arrayBuffer();
         
-        // Validation check
         if (buffer.byteLength < 100) {
             throw new Error("Data too short/corrupted");
         }
