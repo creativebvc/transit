@@ -6,7 +6,7 @@ const URL_ALERTS = "https://data.calgary.ca/download/jhgn-ynqj/application%2Foct
 // ==========================================
 // YOUR PRIVATE PROXY
 // ==========================================
-// I have added your specific worker URL here:
+// Re-paste your specific worker URL here if it's different
 const PROXY_BASE = "https://bvctransitproxy.creative-018.workers.dev/?url=";
 
 async function fetchGTFSRT(targetUrl) {
@@ -16,8 +16,11 @@ async function fetchGTFSRT(targetUrl) {
     const FeedMessage = root.lookupType("transit_realtime.FeedMessage");
 
     try {
-        // Construct the full URL: Proxy + Target
-        const fetchUrl = PROXY_BASE + encodeURIComponent(targetUrl);
+        // --- CACHE BUSTER FIX ---
+        // We add '&cb=' + Date.now() to force a fresh request every time
+        // This prevents Cloudflare from serving old/stale data
+        const uniqueUrl = targetUrl + (targetUrl.includes('?') ? '&' : '?') + 'cb=' + Date.now();
+        const fetchUrl = PROXY_BASE + encodeURIComponent(uniqueUrl);
         
         const response = await fetch(fetchUrl);
         
