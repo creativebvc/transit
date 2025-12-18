@@ -15,8 +15,6 @@
             --ct-blue: #00a8ff;
             --text-primary: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.9);
-            
-            /* UPDATED COLORS */
             --status-green: rgba(0, 255, 150, 0.5); 
             --status-alert: rgba(255, 0, 42, 0.5);
         }
@@ -43,12 +41,11 @@
         /* HEADER */
         .header-row {
             display: flex; justify-content: space-between; align-items: flex-start;
-            /* Changed margin to padding to prevent vertical collapse on some TV engines */
-            padding-bottom: 60px;
+            margin-bottom: 60px;
         }
         
-        /* FIX: Replaced gap with margins for LG TV compatibility */
-        .station-group { display: flex; flex-direction: column; } 
+        /* FIX 1: Replace gap with Margin */
+        .station-group { display: flex; flex-direction: column; }
         .station-name { 
             font-size: 60px; font-weight: 700; line-height: 1; letter-spacing: -1px; 
             margin-bottom: 30px; /* Replaces gap: 30px */
@@ -58,9 +55,7 @@
             font-size: 28px; font-weight: 600; text-transform: uppercase;
             letter-spacing: 2px; color: var(--text-secondary);
             display: flex; align-items: center; 
-            /* gap: 15px removed */
         }
-        
         .live-dot {
             height: 14px; width: 14px; background-color: #00ff41;
             border-radius: 50%; box-shadow: 0 0 10px #00ff41;
@@ -78,34 +73,27 @@
         /* CONTENT */
         .content-area {
             display: flex; justify-content: space-between; 
-            /* gap: 100px removed */
             height: 700px; 
+            /* gap: 100px removed */
         }
         
-        .direction-column { 
-            flex: 1; 
-            display: flex; flex-direction: column; 
-            /* gap: 30px removed */
-        }
+        /* FIX 2: Layout Columns Manually */
+        .direction-column { flex: 1; display: flex; flex-direction: column; }
         
-        /* Add spacing between the two main columns */
-        .direction-column:first-child { margin-right: 50px; }
-        .direction-column:last-child { margin-left: 50px; }
+        /* Add right margin to the first column to create the gap */
+        .direction-column:first-child {
+            margin-right: 100px; /* Replaces gap: 100px */
+        }
 
         .column-label { 
             font-size: 32px; font-weight: 600; display: flex; align-items: center; 
-            margin-bottom: 30px; /* Replaces gap: 30px (vertical) */
+            margin-bottom: 30px; /* Replaces vertical gap */
         }
-        
-        /* Spacing for the arrows in column headers */
-        .column-label span { margin: 0 15px; } 
+        .column-label span { margin: 0 15px; } /* Replaces gap: 15px for arrow */
 
-        .train-list { 
-            display: flex; flex-direction: column; 
-            /* gap: 25px removed */
-        }
-        
-        /* Add margin to all cards except the last one to replace gap */
+        .train-list { display: flex; flex-direction: column; }
+
+        /* FIX 3: Spacing for Train Cards */
         .train-card {
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
@@ -116,10 +104,10 @@
             position: relative; overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             
+            /* Margin instead of gap */
             margin-bottom: 25px; /* Replaces gap: 25px */
         }
-        
-        /* Remove margin from the very last card so it sits flush */
+        /* Remove margin from the last card */
         .train-card:last-child { margin-bottom: 0; }
 
         .line-strip { position: absolute; left: 0; top: 0; bottom: 0; width: 12px; border-radius: 0; }
@@ -145,16 +133,12 @@
         .pulse-text { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* ========================================
-           SERVICE FOOTER
-           ======================================== */
+        /* SERVICE FOOTER */
         #service-footer {
             position: absolute; bottom: 0; left: 0; width: 100%; 
             height: 40px; 
-            display: flex; align-items: center;
-            justify-content: flex-start;
-            font-size: 14px; 
-            font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+            display: flex; align-items: center; justify-content: flex-start;
+            font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
             color: white; overflow: hidden; white-space: nowrap;
             backdrop-filter: blur(5px);
         }
@@ -163,15 +147,11 @@
         .status-alert { background-color: var(--status-alert); }
 
         #service-text {
-            display: inline-block;
-            padding-left: 100%; 
+            display: inline-block; padding-left: 100%; 
             animation: marquee 30s linear infinite;
         }
         
-        @keyframes marquee {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(-100%, 0); }
-        }
+        @keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
     </style>
 </head>
 <body>
@@ -192,16 +172,14 @@
 
         <div class="content-area">
             <div class="direction-column">
-                <div class="column-label"><span>⬅</span> Westbound (Tuscany / 69 St)</div>
+                <div class="column-label"><span>⬅️</span> Westbound (Tuscany / 69 St)</div>
                 <div class="train-list" id="westbound-container">
-                    <div class="train-card" style="opacity:0.6; justify-content:center;">Loading schedule...</div>
-                </div>
+                    </div>
             </div>
             <div class="direction-column">
-                <div class="column-label">Eastbound (Saddletowne / Somerset) <span>➡</span></div>
+                <div class="column-label">Eastbound (Saddletowne / Somerset) <span>➡️</span></div>
                 <div class="train-list" id="eastbound-container">
-                    <div class="train-card" style="opacity:0.6; justify-content:center;">Loading schedule...</div>
-                </div>
+                    </div>
             </div>
         </div>
 
@@ -212,11 +190,13 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.4/dist/protobuf.min.js"></script>
+    
     <script src="scripts/proto-loader.js"></script>
-    <script src="scripts/gtfs-rt-api.js?v=2"></script>
-    <script src="scripts/transit-engine.js?v=14"></script>
+    <script src="scripts/gtfs-rt-api.js"></script>
+    <script src="scripts/transit-engine.js"></script>
 
     <script>
+        // 1. CLOCK LOGIC
         function updateClock() {
             const now = new Date();
             document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', {
@@ -226,6 +206,7 @@
         setInterval(updateClock, 1000);
         updateClock();
 
+        // 2. HELPER: CREATE HTML STRING FOR ONE CARD
         window.createTrainCard = function(train, index) {
             const lineColor = train.line === 'red' ? 'line-red' : 'line-blue';
             const lineName = train.line === 'red' ? '201 Red Line' : '202 Blue Line';
@@ -240,36 +221,4 @@
                         <div class="line-name">${lineName}</div>
                     </div>
                     <div class="arrival-info">
-                        <div class="minutes ${pulse}">${timeText}${minLabel}</div>
-                        <div class="status-badge">${train.status}</div>
-                    </div>
-                </div>
-            `;
-        };
-
-        window.renderColumn = function(containerId, trains) {
-            const container = document.getElementById(containerId);
-            if (!container) return;
-            const visibleTrains = trains.slice(0, 4);
-            if (visibleTrains.length === 0) {
-                container.innerHTML = `<div class="train-card" style="opacity:0.7; justify-content:center;">No trains scheduled</div>`;
-            } else {
-                container.innerHTML = visibleTrains.map((train, index) => window.createTrainCard(train, index)).join('');
-            }
-        };
-
-        setTimeout(() => {
-            if (typeof startTransitDashboard === "function") {
-                startTransitDashboard();
-            } else { console.error("Engine script not found!"); }
-        }, 1000);
-    </script>
-</body>
-</html>
-
-
-
-
-
-
-
+                        <div class="minutes ${pulse}">${timeText}${
