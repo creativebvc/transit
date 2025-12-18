@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0">
     <title>BVCTV Transit Dashboard</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,8 +15,6 @@
             --ct-blue: #00a8ff;
             --text-primary: #ffffff;
             --text-secondary: rgba(255, 255, 255, 0.9);
-            
-            /* UPDATED COLORS */
             --status-green: rgba(0, 255, 150, 0.5); 
             --status-alert: rgba(255, 0, 42, 0.5);
         }
@@ -24,20 +22,20 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            height: 100vh; width: 100vw;
+            width: 1920px; height: 1080px;
             font-family: 'Poppins', sans-serif;
             color: var(--text-primary);
             background: linear-gradient(45deg, #ffa74f 0%, #ff4b6b 100%);
-            background-size: 100% 100%;
-            display: flex; justify-content: center; align-items: center;
-            overflow: hidden; user-select: none;
+            background-size: cover;
+            display: block; /* Safer for TV browsers than flex centering */
+            overflow: hidden; 
+            user-select: none;
         }
 
         .dashboard-wrapper {
             width: 1920px; height: 1080px;
             position: relative;
             padding: 80px 80px 0 80px; 
-            overflow: hidden;
         }
 
         /* HEADER */
@@ -45,54 +43,76 @@
             display: flex; justify-content: space-between; align-items: flex-start;
             margin-bottom: 60px;
         }
-        .station-group { display: flex; flex-direction: column; gap: 30px; } /* Updated gap */
-        .station-name { font-size: 60px; font-weight: 700; line-height: 1; letter-spacing: -1px; }
+        
+        .station-group { display: flex; flex-direction: column; }
+        .station-name { 
+            font-size: 60px; font-weight: 700; line-height: 1; letter-spacing: -1px; 
+            margin-bottom: 30px; /* Safe Margin */
+        }
+        
         .live-status {
             font-size: 28px; font-weight: 600; text-transform: uppercase;
             letter-spacing: 2px; color: var(--text-secondary);
-            display: flex; align-items: center; gap: 15px;
+            display: flex; align-items: center; 
         }
         .live-dot {
             height: 14px; width: 14px; background-color: #00ff41;
             border-radius: 50%; box-shadow: 0 0 10px #00ff41;
+            margin-right: 15px; /* Safe Margin */
         }
         .live-dot.stale { background-color: #ffa500; box-shadow: 0 0 10px #ffa500; }
-        .time-group { text-align: right; display: flex; flex-direction: column; gap: 5px; }
-        .clock { font-size: 64px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; }
+        
+        .time-group { text-align: right; display: flex; flex-direction: column; }
+        .clock { 
+            font-size: 64px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; 
+            margin-bottom: 5px; /* Safe Margin */
+        }
         .platform-info { font-size: 24px; font-weight: 500; opacity: 0.9; }
 
-        /* CONTENT */
+        /* CONTENT LAYOUT */
         .content-area {
-            display: flex; justify-content: space-between; gap: 100px;
+            display: flex; justify-content: space-between; 
             height: 700px; 
         }
-        .direction-column { flex: 1; display: flex; flex-direction: column; gap: 30px; }
-        .column-label { font-size: 32px; font-weight: 600; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; }
-        .train-list { display: flex; flex-direction: column; gap: 25px; }
+        
+        .direction-column { flex: 1; display: flex; flex-direction: column; }
+        
+        /* COLUMN 1 GAP REPLACEMENT */
+        .direction-column:first-child {
+            margin-right: 100px; 
+        }
+
+        .column-label { 
+            font-size: 32px; font-weight: 600; display: flex; align-items: center; 
+            margin-bottom: 30px; /* Safe Margin */
+        }
+        .column-label span { margin: 0 15px; } 
+
+        .train-list { display: flex; flex-direction: column; }
 
         /* TRAIN CARD */
         .train-card {
             background: rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
             border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 24px;
-            /* Height remains 140px for 1080p scaling, but inner content matches */
             height: 140px; 
             width: 100%; padding: 0 30px 0 0;
             display: flex; align-items: center; justify-content: space-between;
             position: relative; overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            margin-bottom: 25px; /* Safe Margin */
         }
+        .train-card:last-child { margin-bottom: 0; }
+
         .line-strip { position: absolute; left: 0; top: 0; bottom: 0; width: 12px; border-radius: 0; }
         .line-red { background: var(--ct-red); }
         .line-blue { background: var(--ct-blue); }
         
         .dest-info { display: flex; flex-direction: column; justify-content: center; margin-left: 30px; }
-        /* Updated Fonts to match Jumbotron */
         .dest-name { font-size: 36px; font-weight: 700; line-height: 1.1; letter-spacing: -0.5px; }
         .line-name { font-size: 22px; font-weight: 500; opacity: 0.9; margin-top: 5px; }
         
         .arrival-info { text-align: right; display: flex; flex-direction: column; align-items: flex-end; }
-        /* Updated Fonts to match Jumbotron */
         .minutes { font-size: 34px; font-weight: 700; line-height: 1; }
         .minutes span { font-size: 20px; font-weight: 500; margin-left: 4px; }
         
@@ -107,16 +127,12 @@
         .pulse-text { animation: pulse 1.5s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* ========================================
-           SERVICE FOOTER (UPDATED)
-           ======================================== */
+        /* SERVICE FOOTER */
         #service-footer {
             position: absolute; bottom: 0; left: 0; width: 100%; 
             height: 40px; 
-            display: flex; align-items: center;
-            justify-content: flex-start;
-            font-size: 14px; 
-            font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+            display: flex; align-items: center; justify-content: flex-start;
+            font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
             color: white; overflow: hidden; white-space: nowrap;
             backdrop-filter: blur(5px);
         }
@@ -125,15 +141,11 @@
         .status-alert { background-color: var(--status-alert); }
 
         #service-text {
-            display: inline-block;
-            padding-left: 100%; 
+            display: inline-block; padding-left: 100%; 
             animation: marquee 30s linear infinite;
         }
         
-        @keyframes marquee {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(-100%, 0); }
-        }
+        @keyframes marquee { 0% { transform: translate(0, 0); } 100% { transform: translate(-100%, 0); } }
     </style>
 </head>
 <body>
@@ -170,24 +182,29 @@
         <footer id="service-footer" class="status-ok">
             <span id="service-text">Checking service status...</span>
         </footer>
-
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/protobufjs@7.2.4/dist/protobuf.min.js"></script>
+    
     <script src="scripts/proto-loader.js"></script>
     <script src="scripts/gtfs-rt-api.js"></script>
-    <script src="scripts/transit-engine.js?v=6"></script>
+    <script src="scripts/transit-engine.js"></script>
 
     <script>
+        // 1. CLOCK LOGIC (Independent, runs immediately)
         function updateClock() {
             const now = new Date();
-            document.getElementById('clock').textContent = now.toLocaleTimeString('en-US', {
-                hour: 'numeric', minute: '2-digit', hour12: true
-            });
+            const clockEl = document.getElementById('clock');
+            if(clockEl) {
+                clockEl.textContent = now.toLocaleTimeString('en-US', {
+                    hour: 'numeric', minute: '2-digit', hour12: true
+                });
+            }
         }
         setInterval(updateClock, 1000);
         updateClock();
 
+        // 2. CARD CREATION HELPER
         window.createTrainCard = function(train, index) {
             const lineColor = train.line === 'red' ? 'line-red' : 'line-blue';
             const lineName = train.line === 'red' ? '201 Red Line' : '202 Blue Line';
@@ -209,23 +226,43 @@
             `;
         };
 
+        // 3. NO-FLASH RENDER FUNCTION
         window.renderColumn = function(containerId, trains) {
             const container = document.getElementById(containerId);
             if (!container) return;
-            const visibleTrains = trains.slice(0, 3);
-            if (visibleTrains.length === 0) {
+
+            // HANDLE EMPTY STATE
+            if (!trains || trains.length === 0) {
+                // If it's already showing "No trains", do nothing (prevents flicker)
+                if (container.innerHTML.includes("No trains scheduled")) return;
+                
+                // If it's showing "Loading", replace it.
+                // If it's showing old trains, replace it.
                 container.innerHTML = `<div class="train-card" style="opacity:0.7; justify-content:center;">No trains scheduled</div>`;
-            } else {
-                container.innerHTML = visibleTrains.map((train, index) => window.createTrainCard(train, index)).join('');
+                return;
+            }
+
+            // BUILD NEW HTML
+            const visibleTrains = trains.slice(0, 3);
+            const newHtml = visibleTrains.map((train, index) => window.createTrainCard(train, index)).join('');
+
+            // ONLY UPDATE DOM IF CHANGED
+            if (container.innerHTML !== newHtml) {
+                container.innerHTML = newHtml;
             }
         };
 
+        // 4. ENGINE STARTUP
         setTimeout(() => {
             if (typeof startTransitDashboard === "function") {
                 startTransitDashboard();
-            } else { console.error("Engine script not found!"); }
+            } else { 
+                console.error("Engine script not found!"); 
+                // Error feedback for the screen
+                document.getElementById('service-text').textContent = "System Error: Script Missing";
+                document.getElementById('service-footer').className = "status-alert";
+            }
         }, 1000);
     </script>
 </body>
 </html>
-
