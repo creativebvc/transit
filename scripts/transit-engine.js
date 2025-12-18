@@ -155,8 +155,8 @@ async function buildTrainList() {
     eastTrains.sort((a, b) => a.minutes - b.minutes);
 
     return { 
-        westTrains: westTrains.slice(0, 3), 
-        eastTrains: eastTrains.slice(0, 3) 
+        westTrains: westTrains.slice(0, 4), 
+        eastTrains: eastTrains.slice(0, 4) 
     };
 }
 
@@ -218,4 +218,5 @@ async function startTransitDashboard() {
 
     update();
     setInterval(update, 30000); 
+
 }
