@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BVCTV Transit Dashboard</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,20 +22,39 @@
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
-            width: 1920px; height: 1080px;
+            /* 1. Fill the viewport exactly */
+            width: 100vw; 
+            height: 100vh;
+            
             font-family: 'Poppins', sans-serif;
             color: var(--text-primary);
             background: linear-gradient(45deg, #ffa74f 0%, #ff4b6b 100%);
             background-size: cover;
-            display: block; /* Safer for TV browsers than flex centering */
+            
+            /* 2. CENTER THE DASHBOARD */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            
             overflow: hidden; 
             user-select: none;
+            margin: 0;
         }
 
         .dashboard-wrapper {
-            width: 1920px; height: 1080px;
+            /* Fixed 1080p Reference Resolution */
+            width: 1920px; 
+            height: 1080px;
+            
+            /* Prevent shrinking on small screens */
+            flex-shrink: 0;
+            
             position: relative;
             padding: 80px 80px 0 80px; 
+            
+            /* Smooth scaling for the Auto-Zoom feature */
+            transform-origin: center center;
+            transition: transform 0.2s ease;
         }
 
         /* HEADER */
@@ -47,7 +66,7 @@
         .station-group { display: flex; flex-direction: column; }
         .station-name { 
             font-size: 60px; font-weight: 700; line-height: 1; letter-spacing: -1px; 
-            margin-bottom: 30px; /* Safe Margin */
+            margin-bottom: 30px; 
         }
         
         .live-status {
@@ -58,14 +77,14 @@
         .live-dot {
             height: 14px; width: 14px; background-color: #00ff41;
             border-radius: 50%; box-shadow: 0 0 10px #00ff41;
-            margin-right: 15px; /* Safe Margin */
+            margin-right: 15px; 
         }
         .live-dot.stale { background-color: #ffa500; box-shadow: 0 0 10px #ffa500; }
         
         .time-group { text-align: right; display: flex; flex-direction: column; }
         .clock { 
             font-size: 64px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; 
-            margin-bottom: 5px; /* Safe Margin */
+            margin-bottom: 5px; 
         }
         .platform-info { font-size: 24px; font-weight: 500; opacity: 0.9; }
 
@@ -76,15 +95,11 @@
         }
         
         .direction-column { flex: 1; display: flex; flex-direction: column; }
-        
-        /* COLUMN 1 GAP REPLACEMENT */
-        .direction-column:first-child {
-            margin-right: 100px; 
-        }
+        .direction-column:first-child { margin-right: 100px; }
 
         .column-label { 
             font-size: 32px; font-weight: 600; display: flex; align-items: center; 
-            margin-bottom: 30px; /* Safe Margin */
+            margin-bottom: 30px; 
         }
         .column-label span { margin: 0 15px; } 
 
@@ -100,7 +115,7 @@
             display: flex; align-items: center; justify-content: space-between;
             position: relative; overflow: hidden;
             box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-            margin-bottom: 25px; /* Safe Margin */
+            margin-bottom: 25px; 
         }
         .train-card:last-child { margin-bottom: 0; }
 
@@ -150,7 +165,7 @@
 </head>
 <body>
 
-    <div class="dashboard-wrapper">
+    <div class="dashboard-wrapper" id="dashboard">
         <header class="header-row">
             <div class="station-group">
                 <div class="station-name">City Hall / Bow Valley College Station</div>
@@ -191,7 +206,7 @@
     <script src="scripts/transit-engine.js"></script>
 
     <script>
-        // 1. CLOCK LOGIC (Independent, runs immediately)
+        // 1. CLOCK
         function updateClock() {
             const now = new Date();
             const clockEl = document.getElementById('clock');
@@ -204,7 +219,23 @@
         setInterval(updateClock, 1000);
         updateClock();
 
-        // 2. CARD CREATION HELPER
+        // 2. AUTO-SCALE LOGIC (New!)
+        // This ensures the dashboard fits ANY screen (4K, Laptop, etc)
+        function fitToScreen() {
+            const wrapper = document.getElementById('dashboard');
+            const scaleX = window.innerWidth / 1920;
+            const scaleY = window.innerHeight / 1080;
+            const scale = Math.min(scaleX, scaleY); // Fit to smallest dimension
+
+            // Only scale if screen is NOT exactly 1920x1080
+            if (scale !== 1) {
+                wrapper.style.transform = `scale(${scale})`;
+            }
+        }
+        window.addEventListener('resize', fitToScreen);
+        fitToScreen(); // Run once on startup
+
+        // 3. CARD HELPER
         window.createTrainCard = function(train, index) {
             const lineColor = train.line === 'red' ? 'line-red' : 'line-blue';
             const lineName = train.line === 'red' ? '201 Red Line' : '202 Blue Line';
@@ -226,39 +257,31 @@
             `;
         };
 
-        // 3. NO-FLASH RENDER FUNCTION
+        // 4. RENDER
         window.renderColumn = function(containerId, trains) {
             const container = document.getElementById(containerId);
             if (!container) return;
 
-            // HANDLE EMPTY STATE
             if (!trains || trains.length === 0) {
-                // If it's already showing "No trains", do nothing (prevents flicker)
                 if (container.innerHTML.includes("No trains scheduled")) return;
-                
-                // If it's showing "Loading", replace it.
-                // If it's showing old trains, replace it.
                 container.innerHTML = `<div class="train-card" style="opacity:0.7; justify-content:center;">No trains scheduled</div>`;
                 return;
             }
 
-            // BUILD NEW HTML
             const visibleTrains = trains.slice(0, 3);
             const newHtml = visibleTrains.map((train, index) => window.createTrainCard(train, index)).join('');
 
-            // ONLY UPDATE DOM IF CHANGED
             if (container.innerHTML !== newHtml) {
                 container.innerHTML = newHtml;
             }
         };
 
-        // 4. ENGINE STARTUP
+        // 5. START
         setTimeout(() => {
             if (typeof startTransitDashboard === "function") {
                 startTransitDashboard();
             } else { 
                 console.error("Engine script not found!"); 
-                // Error feedback for the screen
                 document.getElementById('service-text').textContent = "System Error: Script Missing";
                 document.getElementById('service-footer').className = "status-alert";
             }
